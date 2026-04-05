@@ -1,6 +1,7 @@
 import psycopg2
 from Database import conn
 
+
 class Customers:
     def __init__(self, name=None, email=None, password=None, contact=None):
         self.name = name
@@ -8,7 +9,9 @@ class Customers:
         self.password = password
         self.contact = contact
 
-    def create_table(self):
+    # ✅ STATIC METHOD
+    @staticmethod
+    def create_table():
         curr = conn.cursor()
         curr.execute('''
             CREATE TABLE IF NOT EXISTS customers (
@@ -40,18 +43,22 @@ class Customers:
         if name:
             update_fields.append("name = %s")
             values.append(name)
+
         if contact:
             update_fields.append("contact = %s")
             values.append(contact)
+
         if email:
             update_fields.append("email = %s")
             values.append(email)
+
         if password:
             update_fields.append("password = %s")
             values.append(password)
 
         if not update_fields:
             print("Nothing to update")
+            curr.close()
             return
 
         values.append(customer_id)
@@ -87,7 +94,7 @@ class Customers:
             choice = input("Enter choice: ")
 
             if choice == '1':
-                self.create_table()
+                Customers.create_table()   # ✅ FIXED
                 print("Customer table created successfully")
 
             elif choice == '2':
@@ -99,7 +106,7 @@ class Customers:
                 cust = Customers(name, email, password, contact)
                 cust.insert_customer()
                 print("Customer inserted successfully")
-            
+
             elif choice == '3':
                 cid = input("Customer ID: ")
                 name = input("New Name: ")
@@ -115,9 +122,9 @@ class Customers:
                 self.delete_customer(cid)
                 print("Customer deleted successfully")
 
-
             elif choice == '5':
-                for c in self.get_all_customers():
+                customers = self.get_all_customers()
+                for c in customers:
                     print(c)
 
             elif choice == '0':
@@ -127,7 +134,7 @@ class Customers:
                 print("Invalid choice")
 
 
-# ✅ RUN THIS
+# RUN
 if __name__ == "__main__":
     app = Customers()
     app.customer_menu()
